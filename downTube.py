@@ -1,4 +1,5 @@
 from pytube import YouTube
+from pytube import Playlist
 from pathlib import Path
 import csv
 import sys
@@ -28,15 +29,44 @@ def main():
 # Download and Save
 def Download(link):
     global count
-    youtubeObject = YouTube(link)
-    print('Downloading -', youtubeObject.title)
-    youtubeObject = youtubeObject.streams.get_highest_resolution()
-    try:
-        youtubeObject.download(SAVE_PATH)
-    except:
-        print("An error has occurred")
-    count += 1
-    print("Done")
+    is_playlist = False
+    
+    # Checking for playlist
+    # ! BUG - Not working
+    if 'playlist' in link:
+        playlist = Playlist(link)
+        print(f'Playlist: ')
+        is_playlist = True
+    else:
+        video = YouTube(link)
+    
+    # Downloading playlist
+    if is_playlist:
+        print(len(playlist.video_urls), 'videos in the playlist')
+        for url in playlist.video_urls:
+            print(url)
+        for video in playlist.videos:
+            print(f'Downloading: ')
+            try:
+                video.streams.get_highest_resolution().download(SAVE_PATH)
+            except:
+                print("An error has occurred")
+        count += 1
+
+        # ! Recursion - Extract url one by one
+
+    # Downloading single video
+    else:
+        print(f'Downloading: {video.title}')
+        video = video.streams.get_highest_resolution()
+        try:
+            video.download(SAVE_PATH)
+            count += 1
+            print("Done")
+        except:
+            print("An error has occurred")
+        
+            
 
 # Converting CSV to a list
 def Csv_to_list(file):
