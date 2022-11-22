@@ -2,7 +2,7 @@ from pytube import YouTube
 from pytube import Playlist
 from pathlib import Path
 import sys
-
+import re
 
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
@@ -12,11 +12,14 @@ playlist_count = 0
 
 
 def main():
-    
-    link = input("Enter the YouTube video URL: ")
+    print("downTube")
+    try:
+        link = input("Enter the YouTube video URL: ")
+    except KeyboardInterrupt:
+        sys.exit("Bye!")
 
     # (?:v=|\/)([0-9A-Za-z_-]{11}).*    pytube exception
-    
+
     links = txt_list(URLS_FILE)
     links_count = len(links)
 
@@ -29,6 +32,9 @@ def main():
 
     Status(links_count)
 
+# URL validation
+def IsValid(url):
+    ...
 
 # Download and Save
 def Download(link):
@@ -69,7 +75,6 @@ def Download(link):
         else:
             print("- Done")
         
-            
 # handling the text file
 def txt_list(file):
     print('Checking url.txt')
@@ -78,8 +83,7 @@ def txt_list(file):
             return urls.readlines()
     except FileNotFoundError:
         sys.exit(f"url.csv - not found")
-
-
+        
 # Printing report
 def Status(links):
     print()
