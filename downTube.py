@@ -15,6 +15,8 @@ def main():
     
     link = input("Enter the YouTube video URL: ")
 
+    # (?:v=|\/)([0-9A-Za-z_-]{11}).*    pytube exception
+    
     links = txt_list(URLS_FILE)
     links_count = len(links)
 
@@ -35,15 +37,18 @@ def Download(link):
     is_playlist = False
     
     # Checking for playlist
-    # ! BUG - Not working
     if 'playlist' in link:
         playlist = Playlist(link)
         print()
         print(f'Searching playlist: {playlist.title}')
         is_playlist = True
     else:
-        video = YouTube(link)
-    
+        try:
+            video = YouTube(link)
+        except:
+            print('error! a video skiped')
+            return
+
     # Downloading playlist
     if is_playlist:
         print('Found', len(playlist.video_urls), 'videos')
@@ -59,9 +64,10 @@ def Download(link):
         try:
             video.streams.get_highest_resolution().download(SAVE_PATH)
             videos_count += 1
-            print("- Done")
         except:
             print("An error has occurred")
+        else:
+            print("- Done")
         
             
 # handling the text file
