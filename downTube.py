@@ -12,29 +12,24 @@ playlist_count = 0
 
 
 def main():
-    print("downTube")
-    try:
-        link = input("Enter the YouTube video URL: ")
-    except KeyboardInterrupt:
-        sys.exit("Bye!")
+    
+    # TODO - Run inside a loop 
+    # Getting user inputs
+    try: link = input("Enter the YouTube video URL: ")
+    except KeyboardInterrupt: sys.exit("Bye!")
 
-    # (?:v=|\/)([0-9A-Za-z_-]{11}).*    pytube exception
-
+    # validating user inputs
+    if not len(link) < 11:
+        Download(check_link(link))
+        sys.exit("Bye.")
+        
+    # url.txt file
     links = txt_list(URLS_FILE)
-    links_count = len(links)
-
-    print(links_count, 'links added to queue')
-    print()
 
     if links:
         for link in links:
-            Download(link)
+            Download(check_link(link))
 
-    Status(links_count)
-
-# URL validation
-def IsValid(url):
-    ...
 
 # Download and Save
 def Download(link):
@@ -43,7 +38,10 @@ def Download(link):
     is_playlist = False
     
     # Checking for playlist
-    if 'playlist' in link:
+    if 'list' in link:
+        if re.match('(?:v=|\/)([0-9A-Za-z_-]{11}).*', link):
+            print('Found a playlist attched to the video...')
+
         playlist = Playlist(link)
         print()
         print(f'Searching playlist: {playlist.title}')
@@ -70,22 +68,35 @@ def Download(link):
         try:
             video.streams.get_highest_resolution().download(SAVE_PATH)
             videos_count += 1
+        except KeyboardInterrupt:
+            print("Donwload skipped !")
         except:
             print("An error has occurred")
         else:
             print("- Done")
         
-# handling the text file
+# Checking url.txt file
 def txt_list(file):
+    
     print('Checking url.txt')
     try:
         with open(file, 'r') as urls:
-            return urls.readlines()
+            links = urls.readlines()
+
+            links_count = len(links)
+            print(links_count, 'links added to queue')
+            print()
+            return links
+            
     except FileNotFoundError:
-        sys.exit(f"url.csv - not found")
+        sys.exit(f"url.txt - not found")
         
 # Printing report
-def Status(links):
+def status(links):
+    # ! Need to redo this function
+    # TODO - Total links -> Playlists -> Videos
+    # TODO - How many of links succesfully downloaded
+
     print()
 
     if links > videos_count:
@@ -99,6 +110,31 @@ def Status(links):
     elif videos_count == 0:
         print("Nothing has downloaded.")
     print()
+
+
+# ! add support to different types of links
+# TODO - Return modified list to identify video was attached to a playlist
+
+def check_link(link):
+
+    # Group 1 and 2 - Videos | Group 3 and 4 - Playlist
+    search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
+
+    if not search.group(1) == None:
+        capture = "v=" + str(search.group(1))
+    elif not search.group(2) == None:
+        capture = "v=" + str(search.group(2))
+    elif not search.group(3) == None:
+        capture = "playlist?list=" + str(search.group(3))
+    elif not search.group(4) == None:
+        capture = "playlist?list=" + str(search.group(4))
+    else:
+        print('error! a link skiped')
+        return 1
+    
+    return capture
+
+    # (?:v=|\/)([0-9A-Za-z_-]{11}).*    -pytube expression
 
 
 if __name__ == "__main__":
