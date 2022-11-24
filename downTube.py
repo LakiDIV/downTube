@@ -13,22 +13,47 @@ playlist_count = 0
 
 def main():
     
-    # TODO - Run inside a loop 
-    # Getting user inputs
-    try: link = input("Enter the YouTube video URL: ")
-    except KeyboardInterrupt: sys.exit("Bye!")
+    print("Press enter to start searching url.txt")
+    
+    while True:
+        # Getting user inputs
+        try: url = input("Enter the YouTube video URL: ")
+        except KeyboardInterrupt: sys.exit("Bye!")
 
-    # validating user inputs
-    if not len(link) < 11:
-        Download(check_link(link))
-        sys.exit("Bye.")
+        if url == '':
+            break
+
+        # validating user inputs
+        if not len(url) < 11:
+            Download(check_link(url))
+        else:
+            print("Check the URL")
         
     # url.txt file
-    links = txt_list(URLS_FILE)
+    links = Convert(URLS_FILE)
 
     if links:
         for link in links:
-            Download(check_link(link))
+            Download(link)
+
+
+# Checking url.txt file
+def Convert(file):
+    links = set()
+    print('Checking url.txt')
+    try:
+        with open(file, 'r') as txt_file:
+            txt = txt_file.readlines()
+
+            # Validating each line in the text file
+            for line in txt:
+                links.add(check_link(line))
+            print(len(links), 'links added to queue')
+            print()
+            return links
+            
+    except FileNotFoundError:
+        sys.exit(f"url.txt - not found")
 
 
 # Download and Save
@@ -75,21 +100,6 @@ def Download(link):
         else:
             print("- Done")
         
-# Checking url.txt file
-def txt_list(file):
-    
-    print('Checking url.txt')
-    try:
-        with open(file, 'r') as urls:
-            links = urls.readlines()
-
-            links_count = len(links)
-            print(links_count, 'links added to queue')
-            print()
-            return links
-            
-    except FileNotFoundError:
-        sys.exit(f"url.txt - not found")
         
 # Printing report
 def status(links):
