@@ -1,6 +1,7 @@
 from pytube import YouTube
 from pytube import Playlist
 from pathlib import Path
+from termcolor import colored
 import sys
 import re
 
@@ -14,17 +15,20 @@ always_download_playlist = False # If a playlist attched to the link of a video,
 url_count = 0
 playlist_count = 0
 download_count = 0
+links = set()
 
 
 def main():
-    print("Add urls to",URLS_FILE, "and,")
-    print("Press enter to start searching", URLS_FILE)
-    print("or")
+
+    print()
+    print(colored(f'Add urls to {URLS_FILE} and,', 'blue'))
+    print(colored(f'Press enter to start searching {URLS_FILE}', 'blue'))
+    print(colored("or ", 'blue') , end="")
 
     while True:
         # Getting user inputs
-        try: url = input("Enter the YouTube video URL: ")
-        except KeyboardInterrupt: sys.exit("Bye!")
+        try: url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
+        except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
 
         if url == '': break
 
@@ -34,8 +38,9 @@ def main():
         else:
             print("Check the URL")
         
-    # url.txt file
-    links = Convert(URLS_FILE)
+    
+    # convert url.txt file to a set
+    Convert(URLS_FILE)
 
     if links:
         for link in links:
@@ -46,8 +51,11 @@ def main():
 # Checking url.txt file
 def Convert(file):
     global url_count
-    links = set()
-    print('Checking url.txt')
+    global links
+
+    print()
+    print(colored('Checking:', attrs=["bold"]), URLS_FILE)
+
     try:
         with open(file, 'r') as txt_file:
             txt = txt_file.readlines()
@@ -57,9 +65,8 @@ def Convert(file):
                 links.add(check_link(line))
 
             url_count = len(links)
-            print(url_count, 'links added to queue')
+            print(colored(f'{url_count} links added to queue', 'green'))
             print()
-            return links
             
     except FileNotFoundError:
         sys.exit(f"url.txt - not found")
@@ -72,47 +79,53 @@ def Download(link):
     
     # Checking for playlist
     if 'list' in link:
-        print('Found a playlist...')
+        print()
+        print(colored('Found a playlist...', 'green'))
 
         try:
             playlist = Playlist(link)
         except:
-            print('error! a playlist skiped')
+            print(colored(f'error! a playlist skiped', 'red'))
             return 2
 
-        print()
-        print(f'Searching playlist: {playlist.title}')
+        print(colored('Searching: ', attrs=["bold"]), 'Playlist -', playlist.title)
         print('Found', len(playlist.video_urls), 'videos')
         playlist_count += 1
         # Downloading playlist
         for video in playlist.video_urls:
-            Download(video)
+            #! skipping not wotking - need to skip reapeted downloadings
+            if not video in links:
+                Download(video)
+            else:
+                print(f'Skipped: {video.title}')
         print()
     else:
         try:
             video = YouTube(link)
         except:
-            print('error! a video skiped')
+            print(colored('error! a video skiped', 'red'))
             return 3
     
     # Downloading a single video
-    print(f'Downloading: {video.title}')
+    print(colored(f'Downloading:', attrs=["bold"]), video.title)
     try:
         video.streams.get_highest_resolution().download(SAVE_PATH)
         download_count += 1
     except KeyboardInterrupt:
-        print("Donwload skipped !")
+        print(colored('Donwload skipped !', 'yellow'))
     except:
-        print("An error has occurred")
+        print(colored('An error has occurred', 'red'))
     else:
-        print("- Done")
+        print(colored('- Done', 'green'))
         
         
 # Printing report
 def status():
+    print()
     if playlist_count > 0:
         print(playlist_count, 'playlist found !')
     print(download_count, 'videos downloaded succesfully.')
+    print()
     # ! Need to redo this function
     # TODO - Total links -> Playlists -> Videos
     # TODO - How many of links succesfully downloaded
