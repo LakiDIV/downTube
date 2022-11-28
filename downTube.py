@@ -7,21 +7,26 @@ import re
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
-videos_count = 0
+
+always_download_playlist = False # If a playlist attched to the link of a video, download the playlist
+
+# global variables
+url_count = 0
 playlist_count = 0
+download_count = 0
 
 
 def main():
-    
-    print("Press enter to start searching url.txt")
-    
+    print("Add urls to",URLS_FILE, "and,")
+    print("Press enter to start searching", URLS_FILE)
+    print("or")
+
     while True:
         # Getting user inputs
         try: url = input("Enter the YouTube video URL: ")
         except KeyboardInterrupt: sys.exit("Bye!")
 
-        if url == '':
-            break
+        if url == '': break
 
         # validating user inputs
         if not len(url) < 11:
@@ -36,9 +41,11 @@ def main():
         for link in links:
             Download(link)
 
+    status()
 
 # Checking url.txt file
 def Convert(file):
+    global url_count
     links = set()
     print('Checking url.txt')
     try:
@@ -48,7 +55,9 @@ def Convert(file):
             # Validating each line in the text file
             for line in txt:
                 links.add(check_link(line))
-            print(len(links), 'links added to queue')
+
+            url_count = len(links)
+            print(url_count, 'links added to queue')
             print()
             return links
             
@@ -58,73 +67,60 @@ def Convert(file):
 
 # Download and Save
 def Download(link):
-    global videos_count
+    global download_count
     global playlist_count
-    is_playlist = False
     
     # Checking for playlist
     if 'list' in link:
-        if re.match('(?:v=|\/)([0-9A-Za-z_-]{11}).*', link):
-            print('Found a playlist attched to the video...')
+        print('Found a playlist...')
 
-        playlist = Playlist(link)
+        try:
+            playlist = Playlist(link)
+        except:
+            print('error! a playlist skiped')
+            return 2
+
         print()
         print(f'Searching playlist: {playlist.title}')
-        is_playlist = True
+        print('Found', len(playlist.video_urls), 'videos')
+        playlist_count += 1
+        # Downloading playlist
+        for video in playlist.video_urls:
+            Download(video)
+        print()
     else:
         try:
             video = YouTube(link)
         except:
             print('error! a video skiped')
-            return
-
-    # Downloading playlist
-    if is_playlist:
-        print('Found', len(playlist.video_urls), 'videos')
-        playlist_count += 1
-
-        for video in playlist.video_urls:
-            Download(video)
-        print()
-
-    # Downloading single video
+            return 3
+    
+    # Downloading a single video
+    print(f'Downloading: {video.title}')
+    try:
+        video.streams.get_highest_resolution().download(SAVE_PATH)
+        download_count += 1
+    except KeyboardInterrupt:
+        print("Donwload skipped !")
+    except:
+        print("An error has occurred")
     else:
-        print(f'Downloading: {video.title}')
-        try:
-            video.streams.get_highest_resolution().download(SAVE_PATH)
-            videos_count += 1
-        except KeyboardInterrupt:
-            print("Donwload skipped !")
-        except:
-            print("An error has occurred")
-        else:
-            print("- Done")
+        print("- Done")
         
         
 # Printing report
-def status(links):
+def status():
+    if playlist_count > 0:
+        print(playlist_count, 'playlist found !')
+    print(download_count, 'videos downloaded succesfully.')
     # ! Need to redo this function
     # TODO - Total links -> Playlists -> Videos
     # TODO - How many of links succesfully downloaded
 
-    print()
-
-    if links > videos_count:
-        print(links-playlist_count, 'links has rejected.')
-        print(videos_count, 'out of', links, "download has completed successfully.")
-    
-    print(videos_count, 'videos has downloaded.')
-
-    if videos_count >= links:
-        print("Download is completed successfully.")
-    elif videos_count == 0:
-        print("Nothing has downloaded.")
-    print()
+    ...
 
 
-# ! add support to different types of links
-# TODO - Return modified list to identify video was attached to a playlist
-
+# TODO - If a plylist attached to the video, ask user to download playlist or not
 def check_link(link):
 
     # Group 1 and 2 - Videos | Group 3 and 4 - Playlist
@@ -141,7 +137,7 @@ def check_link(link):
     else:
         print('error! a link skiped')
         return 1
-    
+
     return capture
 
     # (?:v=|\/)([0-9A-Za-z_-]{11}).*    -pytube expression
