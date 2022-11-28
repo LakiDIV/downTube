@@ -6,36 +6,21 @@ import sys
 
 class Download:
     def __init__(self) -> None:
-        pass
+        self._download_count = 0
+        self._url_count = 0
+
+    @property
+    def download_count(self):
+        return self._download_count
     
-    # Checking link
-    def check_link(self, link):
-        if 'playlist' in link:
-            playlist = Playlist(link)
-            print()
-            print(f'Searching playlist: {playlist.title}')
-        else:
-            try:
-                video = YouTube(link)
-                download_video(video)
-            except:
-                print('error! a video skiped')
-                return
+    @property
+    def url_count(self):
+        return self._url_count
 
-    # Downloading playlist
-    def download_playlist(self, playlist):
-        print('Found', len(playlist.video_urls), 'videos')
+    # This function will convert txt file to a set
+    def convert(self):
+        ...
 
-        for video in playlist.video_urls:
-            download_video(video)
-        print()
-
-    # Downloading single video
-    def download_video(self, video):
-        print(f'Downloading: {video.title}')
-        try:
-            video.streams.get_highest_resolution().download(SAVE_PATH)
-        except:
-            print("An error has occurred")
-        else:
-            print("- Done")
+    # This function will download a video file or a playlist
+    def download(self):
+        ...
