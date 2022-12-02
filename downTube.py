@@ -49,8 +49,9 @@ def main():
 
     status()
 
-# Checking url.txt file
+
 def Convert(file):
+    """Extract links from the text file"""
     global url_count
     global links
 
@@ -73,8 +74,13 @@ def Convert(file):
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
 
 
-# Download and Save
 def Download(link):
+    """
+    Download and save a video or a playlist
+    
+    :param link: List of URLs
+    :type link: text file
+    """
     global download_count
     global playlist_count
     
@@ -120,8 +126,8 @@ def Download(link):
         print(colored('- Done', 'green'))
         
         
-# Printing report
 def status():
+    """Reports the summery of the program to the user"""
     print()
     if playlist_count > 0:
         print(playlist_count, 'playlist found !')
@@ -136,7 +142,7 @@ def status():
 
 # TODO - If a plylist attached to the video, ask user to download playlist or not
 def check_link(link):
-
+    """Validate a link and capture the video or playlist URL"""
     # Group 1 and 2 - Videos | Group 3 and 4 - Playlist
     search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
 
