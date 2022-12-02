@@ -21,8 +21,7 @@ links = set()
 def main():
 
     print()
-    print(colored(f'Add urls to {URLS_FILE} and,', 'blue'))
-    print(colored(f'Press enter to start searching {URLS_FILE}', 'blue'))
+    print(colored(f'Add urls to {URLS_FILE} and press ENTER', 'blue'))
     print(colored("or ", 'blue') , end="")
 
     while True:
@@ -33,11 +32,13 @@ def main():
         if url == '': break
 
         # validating user inputs
+        # ! don't validate using len(url), AttributeError
         if not len(url) < 11:
+            print()
             Download(check_link(url))
         else:
-            print("Check the URL")
-        
+            print(colored('Check the URL', 'red'))
+            print()
     
     # convert url.txt file to a set
     Convert(URLS_FILE)
@@ -69,7 +70,7 @@ def Convert(file):
             print()
             
     except FileNotFoundError:
-        sys.exit(f"url.txt - not found")
+        sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
 
 
 # Download and Save
