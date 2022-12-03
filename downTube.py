@@ -142,8 +142,13 @@ def status():
 
 # TODO - If a plylist attached to the video, ask user to download playlist or not
 def check_link(link):
-    """Validate a link and capture the video or playlist URL"""
-    # Group 1 and 2 - Videos | Group 3 and 4 - Playlist
+    """
+    Validate a link and capture the video or playlist URL
+
+    :pytube expression: (?:v=|\/)([0-9A-Za-z_-]{11}).*
+    
+    Group 1 and 2 - Videos | Group 3 and 4 - Playlist
+    """
     search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
 
     if not search.group(1) == None:
@@ -160,7 +165,6 @@ def check_link(link):
 
     return capture
 
-    # (?:v=|\/)([0-9A-Za-z_-]{11}).*    -pytube expression
 
 
 if __name__ == "__main__":
