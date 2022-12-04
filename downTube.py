@@ -26,19 +26,16 @@ def main():
 
     while True:
         # Getting user inputs
-        try: url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
+        try: raw_url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
         except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
 
-        if url == '': break
+        if raw_url == '': break
 
         # validating user inputs
-        # ! don't validate using len(url), AttributeError
-        if not len(url) < 11:
-            print()
-            Download(check_link(url))
-        else:
-            print(colored('Check the URL', 'red'))
-            print()
+        url = check_link(raw_url)
+        if not url == 1:
+            Download(url)
+        raw_url = None
     
     # convert url.txt file to a set
     Convert(URLS_FILE)
@@ -51,7 +48,7 @@ def main():
 
 
 def Convert(file):
-    """Extract links from the text file"""
+    """Extract urls from the text file"""
     global url_count
     global links
 
@@ -72,6 +69,36 @@ def Convert(file):
             
     except FileNotFoundError:
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
+
+
+# TODO - If a plylist attached to the video, ask user to download playlist or not
+def check_link(link):
+    """
+    Validate a link and capture the video or playlist URL
+
+    :pytube expression: (?:v=|\/)([0-9A-Za-z_-]{11}).*
+    
+    Group 1 and 2 - Videos | Group 3 and 4 - Playlist
+    """
+    search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
+
+    try:
+        if not search.group(1) == None:
+            capture = "v=" + str(search.group(1))
+        elif not search.group(2) == None:
+            capture = "v=" + str(search.group(2))
+        elif not search.group(3) == None:
+            capture = "playlist?list=" + str(search.group(3))
+        elif not search.group(4) == None:
+            capture = "playlist?list=" + str(search.group(4))
+        else:
+            raise AttributeError
+
+    except AttributeError:
+        print(colored('AttributeError, Check the URL', 'red'))
+        return 1
+
+    return capture
 
 
 def Download(link):
@@ -124,8 +151,8 @@ def Download(link):
         print(colored('An error has occurred', 'red'))
     else:
         print(colored('- Done', 'green'))
-        
-        
+
+
 def status():
     """Reports the summery of the program to the user"""
     print()
@@ -138,33 +165,6 @@ def status():
     # TODO - How many of links succesfully downloaded
 
     ...
-
-
-# TODO - If a plylist attached to the video, ask user to download playlist or not
-def check_link(link):
-    """
-    Validate a link and capture the video or playlist URL
-
-    :pytube expression: (?:v=|\/)([0-9A-Za-z_-]{11}).*
-    
-    Group 1 and 2 - Videos | Group 3 and 4 - Playlist
-    """
-    search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
-
-    if not search.group(1) == None:
-        capture = "v=" + str(search.group(1))
-    elif not search.group(2) == None:
-        capture = "v=" + str(search.group(2))
-    elif not search.group(3) == None:
-        capture = "playlist?list=" + str(search.group(3))
-    elif not search.group(4) == None:
-        capture = "playlist?list=" + str(search.group(4))
-    else:
-        print('error! a link skiped')
-        return 1
-
-    return capture
-
 
 
 if __name__ == "__main__":
