@@ -15,8 +15,22 @@
 <br/>
 <br/>
 
+Program is still on the alpa state so use following commands to run the program using terminal.
+
+<br/>
+
+**How to download videos?**
+
+`python downtube.py -n N`
+
+`N` is how many times the program need to ask for a URL
+
+<br/>
+
 **How to download bunch of videos at once?**
 
-Add video urls to `url.txt` and run the program, when prompt for URL just press `enter` without typing anything to download all videos in csv file to your PC.
+Add video urls to `url.txt`,
+
+`python downtube.py`
 
 Downloaded files will automatically saved to `Downloads/downTube`
