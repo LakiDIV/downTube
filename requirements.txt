@@ -1,5 +1,6 @@
 pytube
 pathlib
 termcolor
+argparse
 sys
 re

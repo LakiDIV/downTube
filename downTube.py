@@ -2,6 +2,7 @@ from pytube import YouTube
 from pytube import Playlist
 from pathlib import Path
 from termcolor import colored
+import argparse
 import sys
 import re
 
@@ -20,16 +21,16 @@ links = set()
 
 def main():
 
-    print()
-    print(colored(f'Add urls to {URLS_FILE} and press ENTER', 'blue'))
-    print(colored("or ", 'blue') , end="")
+    parser = argparse.ArgumentParser(description="a YouTube video downloader")
+    parser.add_argument("-n", default=0, help="Number of time to ask url", type=int)
+    args = parser.parse_args()
 
-    while True:
+    print()
+
+    for _ in range(args.n):
         # Getting user inputs
         try: raw_url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
         except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
-
-        if raw_url == '': break
 
         # validating user inputs
         url = check_link(raw_url)
@@ -64,6 +65,9 @@ def Convert(file):
                 links.add(check_link(line))
 
             url_count = len(links)
+            if url_count == 0:
+                sys.exit(colored(f'NO LINKS FOUND !', 'red'))
+
             print(colored(f'{url_count} links added to queue', 'green'))
             print()
             
