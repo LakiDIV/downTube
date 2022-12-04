@@ -6,6 +6,8 @@ import argparse
 import sys
 import re
 
+from Tracker import Tracker
+
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
@@ -22,7 +24,6 @@ download_count = 0
 
 
 def main():
-
     # Command Line Options
     parser = argparse.ArgumentParser(description="a YouTube video downloader")
     parser.add_argument("-n", default=0, help="Number of time to ask url", type=int)
@@ -80,10 +81,13 @@ def update_trackers():
     """Update all trackers"""
     global url_count
     url_count = len(links)
+    
+    tracker = Tracker(url_count)
+    
     if url_count == 0:
         sys.exit(colored(f'NO LINKS FOUND !', 'red'))
     else:
-        print(colored(f'{url_count} links added to queue\n', 'green'))
+        print(tracker)
 
 
 # TODO - If a plylist attached to the video, ask user to download playlist or not

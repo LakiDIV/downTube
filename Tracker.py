@@ -1,19 +1,22 @@
+from termcolor import colored
+
+
 class Tracker:
     """
     All trackers
     """
 
-    def __init__(self, urls_count) -> None:
-        if not urls_count:
-            raise ModuleNotFoundError("Missing URLs")
-        self.urls = urls_count
+    def __init__(self, url_count) -> None:
+        if not url_count:
+            raise ModuleNotFoundError(colored(f'Missing URLs\n', 'red'))
+        self.url_count = url_count
         # self.url_pass_count = 0
         # self.url_fail_count = 0
         # self.url_skipped_count = 0
         # self.playlist_count = 0
 
     def __str__(self) -> str:
-        return f"{self.url_count} URLs have found."
+        return colored(f'{self.url_count} URLs have found.\n', 'green')
 
 
     def status():
