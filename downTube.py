@@ -13,44 +13,50 @@ URLS_FILE = 'url.txt'
 always_download_playlist = False # If a playlist attched to the link of a video, download the playlist
 
 # global variables
+links = set()
+
+# trackers
 url_count = 0
 playlist_count = 0
 download_count = 0
-links = set()
 
 
 def main():
 
+    # Command Line Options
     parser = argparse.ArgumentParser(description="a YouTube video downloader")
     parser.add_argument("-n", default=0, help="Number of time to ask url", type=int)
     args = parser.parse_args()
 
-    print()
-
     for _ in range(args.n):
+        print()
         # Getting user inputs
         try: raw_url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
         except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
 
-        # validating user inputs
+        # Validating user inputs
         url = check_link(raw_url)
-        if not url == 1:
-            Download(url)
+        if not url == 1: Download(url)
         raw_url = None
     
-    # convert url.txt file to a set
-    Convert(URLS_FILE)
+    # Convert url.txt file to a set
+    convert_text_file(URLS_FILE)
+
+    update_trackers()
 
     if links:
         for link in links:
             Download(link)
 
+    # Report
     status()
 
 
-def Convert(file):
-    """Extract urls from the text file"""
-    global url_count
+def convert_text_file(file):
+    """
+    Extract urls from the text file
+    This function will update the links(global set)
+    """
     global links
 
     print()
@@ -62,17 +68,22 @@ def Convert(file):
 
             # Validating each line in the text file
             for line in txt:
-                links.add(check_link(line))
-
-            url_count = len(links)
-            if url_count == 0:
-                sys.exit(colored(f'NO LINKS FOUND !', 'red'))
-
-            print(colored(f'{url_count} links added to queue', 'green'))
-            print()
+                if not line.isspace():
+                    link = check_link(line)
+                    if not link == 1: links.add(link)
             
     except FileNotFoundError:
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
+
+
+def update_trackers():
+    """Update all trackers"""
+    global url_count
+    url_count = len(links)
+    if url_count == 0:
+        sys.exit(colored(f'NO LINKS FOUND !', 'red'))
+    else:
+        print(colored(f'{url_count} links added to queue\n', 'green'))
 
 
 # TODO - If a plylist attached to the video, ask user to download playlist or not
