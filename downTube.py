@@ -6,8 +6,6 @@ import argparse
 import sys
 import re
 
-from Tracker import Tracker
-
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
@@ -43,14 +41,10 @@ def main():
     # Convert url.txt file to a set
     convert_text_file(URLS_FILE)
 
-    update_trackers()
-
     if links:
         for link in links:
             Download(link)
 
-    # Report
-    status()
 
 
 def convert_text_file(file):
@@ -59,6 +53,7 @@ def convert_text_file(file):
     This function will update the links(global set)
     """
     global links
+    global url_count
 
     print()
     print(colored('Checking:', attrs=["bold"]), URLS_FILE)
@@ -73,21 +68,15 @@ def convert_text_file(file):
                     link = check_link(line)
                     if not link == 1: links.add(link)
             
+            url_count = len(links)
+            if url_count == 0:
+                sys.exit(colored(f'NO LINKS FOUND !', 'red'))
+            else:
+                print(colored(f'{url_count} LINKS HAS FOUND !', 'green'))
+            
     except FileNotFoundError:
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
 
-
-def update_trackers():
-    """Update all trackers"""
-    global url_count
-    url_count = len(links)
-    
-    tracker = Tracker(url_count)
-    
-    if url_count == 0:
-        sys.exit(colored(f'NO LINKS FOUND !', 'red'))
-    else:
-        print(tracker)
 
 
 # TODO - If a plylist attached to the video, ask user to download playlist or not
@@ -171,19 +160,6 @@ def Download(link):
     else:
         print(colored('- Done', 'green'))
 
-
-def status():
-    """Reports the summery of the program to the user"""
-    print()
-    if playlist_count > 0:
-        print(playlist_count, 'playlist found !')
-    print(download_count, 'videos downloaded succesfully.')
-    print()
-    # ! Need to redo this function
-    # TODO - Total links -> Playlists -> Videos
-    # TODO - How many of links succesfully downloaded
-
-    ...
 
 
 if __name__ == "__main__":

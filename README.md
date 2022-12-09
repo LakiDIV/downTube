@@ -1,9 +1,7 @@
-# downTube
- a YouTube video downloader.
+    # downTube
+    #### Video Demo:  <URL HERE>
+    #### Description: a YouTube video downloader.
 
-
-<br/><br/>
-- 
 **Features**
 
 - Download bunch of videos at once
