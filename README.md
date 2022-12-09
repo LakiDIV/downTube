@@ -1,6 +1,6 @@
-    # downTube
-    #### Video Demo:  <URL HERE>
-    #### Description: a YouTube video downloader.
+# downTube
+#### Video Demo:  <URL HERE>
+#### Description: a YouTube video downloader.
 
 **Features**
 
