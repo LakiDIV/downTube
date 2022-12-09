@@ -2,7 +2,9 @@
 #### Video Demo:  <URL HERE>
 #### Description: a YouTube video downloader.
 
--
+<br/>
+<hr />
+
 **Features**
 
 - Download bunch of videos at once
@@ -13,8 +15,6 @@
 
 <br/>
 <br/>
-
-Program is still on the alpa state so use following commands to run the program using terminal.
 
 <br/>
 
