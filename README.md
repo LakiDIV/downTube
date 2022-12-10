@@ -23,9 +23,15 @@ There are thousands of YouTube downloaders on the Internet but unlike any, you d
 
 **How to download using downTube?**
 
-Add video urls to `url.txt`,
+Add video urls to `url.txt` and run the program or,
 
-run the program `python downtube.py`
+use `python downtube.py -a A` to add URLs
+
+`A` is how many times the program need to ask for a URL
+
+<br/>
+
+use `-c` or `--clear` to clean the text file
 
 <br/>
 
