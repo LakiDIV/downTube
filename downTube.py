@@ -1,5 +1,4 @@
-from pytube import YouTube
-from pytube import Playlist
+from pytube import YouTube, Playlist
 from pathlib import Path
 from termcolor import colored
 import argparse
@@ -10,23 +9,40 @@ import re
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
 
-always_download_playlist = False # If a playlist attched to the link of a video, download the playlist
-
 # global variables
 links = set()
 
 # trackers
 url_count = 0
-playlist_count = 0
-download_count = 0
 
 
 def main():
-    # Command Line Options
+    userInputs()
+
+    # Convert url.txt file to a set
+    convert(URLS_FILE)
+
+    if links:
+        for link in links:
+            download(link)
+
+def userInputs():
+    """Handling user inputs and command line arguements"""
+
+    # Command Line arguements
     parser = argparse.ArgumentParser(description="a YouTube video downloader")
-    parser.add_argument("-n", default=0, help="Number of time to ask url", type=int)
+    parser.add_argument("-c", "--clear", help=f"Clear {URLS_FILE}", action='store_true')
+    parser.add_argument("-n", default=0, help="Download videos one by one", type=int)
+    parser.add_argument("-a", default=0, help=f"Add URLs to {URLS_FILE}", type=int)
     args = parser.parse_args()
 
+    # Clear text file
+    if args.c:
+        with open(URLS_FILE, 'w') as txt_file:
+            txt_file.writelines("\n")
+            print(colored(f'{URLS_FILE} CLEANED !', 'green'))
+
+    # Download videos one by one
     for _ in range(args.n):
         print()
         # Getting user inputs
@@ -34,23 +50,23 @@ def main():
         except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
 
         # Validating user inputs
-        url = check_link(raw_url)
-        if not url == 1: Download(url)
+        url = validate(raw_url)
+        if not url == 1: download(url)
         raw_url = None
     
-    # Convert url.txt file to a set
-    convert_text_file(URLS_FILE)
+    # Add URLs to text file
+    with open(URLS_FILE, 'a') as txt_file:
+        for _ in range(args.a):
+            txt_file.writelines(input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ") + "\n")
+            print(colored(f'URL added !', 'green'))
 
-    if links:
-        for link in links:
-            Download(link)
+    return
 
-
-
-def convert_text_file(file):
+def convert(file):
     """
     Extract urls from the text file
     This function will update the links(global set)
+    This will convert a text file to a set
     """
     global links
     global url_count
@@ -65,7 +81,7 @@ def convert_text_file(file):
             # Validating each line in the text file
             for line in txt:
                 if not line.isspace():
-                    link = check_link(line)
+                    link = validate(line)
                     if not link == 1: links.add(link)
             
             url_count = len(links)
@@ -78,9 +94,8 @@ def convert_text_file(file):
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
 
 
-
 # TODO - If a plylist attached to the video, ask user to download playlist or not
-def check_link(link):
+def validate(link):
     """
     Validate a link and capture the video or playlist URL
 
@@ -109,15 +124,13 @@ def check_link(link):
     return capture
 
 
-def Download(link):
+def download(link):
     """
     Download and save a video or a playlist
     
     :param link: List of URLs
     :type link: text file
     """
-    global download_count
-    global playlist_count
     
     # Checking for playlist
     if 'list' in link:
@@ -132,12 +145,12 @@ def Download(link):
 
         print(colored('Searching: ', attrs=["bold"]), 'Playlist -', playlist.title)
         print('Found', len(playlist.video_urls), 'videos')
-        playlist_count += 1
+
         # Downloading playlist
         for video in playlist.video_urls:
             #! skipping not wotking - need to skip reapeted downloadings
             if not video in links:
-                Download(video)
+                download(video)
             else:
                 print(f'Skipped: {video.title}')
         print()
@@ -152,7 +165,6 @@ def Download(link):
     print(colored(f'Downloading:', attrs=["bold"]), video.title)
     try:
         video.streams.get_highest_resolution().download(SAVE_PATH)
-        download_count += 1
     except KeyboardInterrupt:
         print(colored('Donwload skipped !', 'yellow'))
     except:
