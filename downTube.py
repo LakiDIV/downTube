@@ -9,8 +9,12 @@ import re
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
 
-# global variables
-links = set()
+# options
+skip_repeated_playlist_videos = False
+always_download_playlist = True
+
+# global
+queued = set()
 
 # trackers
 url_count = 0
@@ -19,15 +23,20 @@ url_count = 0
 def main():
     userInputs()
 
-    # Convert url.txt file to a set
-    convert(URLS_FILE)
+    global queued
+    queued = convert(URLS_FILE)
 
-    if links:
-        for link in links:
+    if queued:
+        for link in queued:
             download(link)
+    
+    print()
+
 
 def userInputs():
-    """Handling user inputs and command line arguements"""
+    """
+    Handling user inputs and command line arguements
+    """
 
     # Command Line arguements
     parser = argparse.ArgumentParser(description="a YouTube video downloader")
@@ -37,7 +46,7 @@ def userInputs():
     args = parser.parse_args()
 
     # Clear text file
-    if args.c:
+    if args.clear:
         with open(URLS_FILE, 'w') as txt_file:
             txt_file.writelines("\n")
             print(colored(f'{URLS_FILE} CLEANED !', 'green'))
@@ -62,13 +71,13 @@ def userInputs():
 
     return
 
+
 def convert(file):
     """
-    Extract urls from the text file
-    This function will update the links(global set)
-    This will convert a text file to a set
+    Convert url.txt file to links and add them to global links
     """
-    global links
+
+    links = set()
     global url_count
 
     print()
@@ -81,20 +90,24 @@ def convert(file):
             # Validating each line in the text file
             for line in txt:
                 if not line.isspace():
-                    link = validate(line)
+                    id = validate(line)
+                    
+                    if len(id) == 11: link = "v=" + id
+                    if len(id) == 34: link = "playlist?list=" + id
+
                     if not link == 1: links.add(link)
             
             url_count = len(links)
             if url_count == 0:
                 sys.exit(colored(f'NO LINKS FOUND !', 'red'))
             else:
-                print(colored(f'{url_count} LINKS HAS FOUND !', 'green'))
+                print(colored(f'{url_count} LINKS FOUND !\n', 'green'))
+                return links
             
     except FileNotFoundError:
         sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
 
 
-# TODO - If a plylist attached to the video, ask user to download playlist or not
 def validate(link):
     """
     Validate a link and capture the video or playlist URL
@@ -103,25 +116,31 @@ def validate(link):
     
     Group 1 and 2 - Videos | Group 3 and 4 - Playlist
     """
-    search = re.search(r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link)
+    if 'list' in link and 'watch' in link:
+        if always_download_playlist:
+            print(colored('ALWAYS DOWNLOAD PLAYLIST IS ON \n', 'yellow'))
+            search = re.search(r'(?:list=([0-9A-Za-z_-]{34}))', link)
+            return str(search.group(1))
+
+    search = re.search(
+        r'(?:(?:(?:v=|\/)([0-9A-Za-z_-]{11}))|(^[0-9A-Za-z_-]{11}$)|(?:(?:list=([0-9A-Za-z_-]{34})))|(^[0-9A-Za-z_-]{34}$))', link
+    )
 
     try:
         if not search.group(1) == None:
-            capture = "v=" + str(search.group(1))
+            return str(search.group(1))
         elif not search.group(2) == None:
-            capture = "v=" + str(search.group(2))
+            return str(search.group(2))
         elif not search.group(3) == None:
-            capture = "playlist?list=" + str(search.group(3))
+            return str(search.group(3))
         elif not search.group(4) == None:
-            capture = "playlist?list=" + str(search.group(4))
+            return str(search.group(4))
         else:
             raise AttributeError
 
     except AttributeError:
         print(colored('AttributeError, Check the URL', 'red'))
         return 1
-
-    return capture
 
 
 def download(link):
@@ -134,7 +153,6 @@ def download(link):
     
     # Checking for playlist
     if 'list' in link:
-        print()
         print(colored('Found a playlist...', 'green'))
 
         try:
@@ -144,15 +162,17 @@ def download(link):
             return 2
 
         print(colored('Searching: ', attrs=["bold"]), 'Playlist -', playlist.title)
-        print('Found', len(playlist.video_urls), 'videos')
+        print(colored(f'Found {len(playlist.video_urls)} videos from the playlist', 'green'))
 
         # Downloading playlist
         for video in playlist.video_urls:
-            #! skipping not wotking - need to skip reapeted downloadings
-            if not video in links:
-                download(video)
+            if skip_repeated_playlist_videos:
+                # Skipping repeated videos
+                search = re.search(r'(v=([0-9A-Za-z_-]{11}))', video)
+                if search.group(1) in queued: print(colored(f'A video skipped - already queued.', 'red'))
             else:
-                print(f'Skipped: {video.title}')
+                download(video)
+
         print()
     else:
         try:
