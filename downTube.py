@@ -32,7 +32,6 @@ def main():
     
     print()
 
-
 def userInputs():
     """
     Handling user inputs and command line arguements
@@ -60,7 +59,9 @@ def userInputs():
 
         # Validating user inputs
         url = validate(raw_url)
-        if not url == 1: download(url)
+        if len(url) == 11: link = "v=" + url
+        if len(url) == 34: link = "playlist?list=" + url
+        if not url == 1: download(link)
         raw_url = None
     
     # Add URLs to text file
