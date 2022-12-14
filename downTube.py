@@ -100,13 +100,15 @@ def convert(file):
             
             url_count = len(links)
             if url_count == 0:
-                sys.exit(colored(f'NO LINKS FOUND !', 'red'))
+                print(colored(f'NO LINKS FOUND !', 'red'))
+                sys.exit(input("Press enter to exit..."))
             else:
                 print(colored(f'{url_count} LINKS FOUND !\n', 'green'))
                 return links
             
     except FileNotFoundError:
-        sys.exit(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
+        print(colored(f'{URLS_FILE} NOT FOUND !', 'red'))
+        sys.exit(input("Press enter to exit..."))
 
 
 def validate(link):
