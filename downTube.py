@@ -31,6 +31,7 @@ def main():
             download(link)
     
     print()
+    sys.exit(input("Press enter to exit..."))
 
 def userInputs():
     """
@@ -55,7 +56,9 @@ def userInputs():
         print()
         # Getting user inputs
         try: raw_url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
-        except KeyboardInterrupt: sys.exit(colored("Bye!", 'yellow'))
+        except KeyboardInterrupt:
+            print(colored("Bye!", 'yellow'))
+            sys.exit(input("Press enter to exit..."))
 
         # Validating user inputs
         url = validate(raw_url)
