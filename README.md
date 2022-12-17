@@ -1,11 +1,8 @@
 # downTube
-#### Video Demo:  <URL HERE>
-#### Description: a YouTube video downloader.
-
+#### Video Demo:  https://www.youtube.com/watch?v=qdU-cHqeHBk
+#### Description: A Command-line program to download bunch of YouTube videos, using pytube library.
 <br/>
 <hr />
-
-There are thousands of YouTube downloaders on the Internet but unlike any, you don't need to wait till one download is completed to enter the next video URL. You can save all the URLs in a text file and run the program anytime. downTube will download all the videos including the playlist and save them in your download folder.
 
 **Features**
 
@@ -18,8 +15,6 @@ There are thousands of YouTube downloaders on the Internet but unlike any, you d
 
 <br/>
 <br/>
-
-
 
 **How to download using downTube?**
 
