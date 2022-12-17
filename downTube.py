@@ -182,20 +182,24 @@ def download(link):
         print()
     else:
         try:
-            video = YouTube(link)
+            yt = YouTube(link)
         except:
             print(colored('error! a video skiped', 'red'))
             return 3
     
     # Downloading a single video
-    print(colored(f'Downloading:', attrs=["bold"]), video.title)
+    print(colored(f'Downloading:', attrs=["bold"]), yt.title)
     try:
-        video.streams.get_highest_resolution().download(SAVE_PATH)
+        video = yt.streams.get_highest_resolution()
     except KeyboardInterrupt:
         print(colored('Donwload skipped !', 'yellow'))
     except:
         print(colored('An error has occurred', 'red'))
     else:
+        filesize = video.filesize
+
+        print(colored(f"[{round(filesize, 1)}MB]"), end=" ")
+        video.download(SAVE_PATH)
         print(colored('- Done', 'green'))
 
 
