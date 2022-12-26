@@ -1,9 +1,14 @@
 from pytube import YouTube, Playlist
+from pytube.cli import on_progress #this module contains the built in progress bar. 
 from pathlib import Path
 from termcolor import colored
 import argparse
 import sys
 import re
+
+from cfonts import render, say
+
+chunk_size = 1024
 
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
@@ -15,12 +20,15 @@ always_download_playlist = True
 
 # global
 queued = set()
+file_size = 0
 
 # trackers
 url_count = 0
 
 
 def main():
+    welcome = render('downTube', colors=['red', 'yellow'], align='center')
+    print(welcome)
     userInputs()
 
     global queued
@@ -181,27 +189,51 @@ def download(link):
 
         print()
     else:
-        try:
-            yt = YouTube(link)
+        # Searches for the video and sets up the callback to run the progress indicator. 
+        try: yt = YouTube(link, on_progress_callback=on_progress)
         except:
-            print(colored('error! a video skiped', 'red'))
+            print(colored('Error: Video unavaliable!', 'red'))
             return 3
+
     
-    # Downloading a single video
-    print(colored(f'Downloading:', attrs=["bold"]), yt.title)
-    try:
-        video = yt.streams.get_highest_resolution()
-    except KeyboardInterrupt:
-        print(colored('Donwload skipped !', 'yellow'))
-    except:
-        print(colored('An error has occurred', 'red'))
-    else:
-        filesize = video.filesize
+    
+    #Get the first video type - usually the best quality.
+    video = yt.streams.filter(progressive=True, file_extension='mp4').get_highest_resolution()
 
-        print(colored(f"[{round(filesize, 1)}MB]"), end=" ")
-        video.download(SAVE_PATH)
-        print(colored('- Done', 'green'))
+    #Gets the title of the video
+    title = yt.title
 
+    #Prepares the file for download
+    print(colored(f'Downloading:', attrs=["bold"]), title)
+    global file_size
+    file_size = video.filesize
+    print(colored(f"[{round(file_size/1024/1024, 1)}MB]"), end=" ")
+
+    #Starts the download process
+    video.download(SAVE_PATH)
+    print(colored('- Done', 'green'))
+
+
+
+
+#! Not working 
+# # on_progress_callback 2 Example functions
+
+# def progress(stream, chunk, file_handle, bytes_remaining):
+#     contentSize = file_size
+#     size = contentSize - bytes_remaining
+
+#     print('\r' + '[Download progress]:[%s%s]%.2f%%;' % (
+#     '█' * int(size*20/contentSize), ' '*(20-int(size*20/contentSize)), float(size/contentSize*100)), end='')
+
+# def progress_function(chunk, file_handle, bytes_remaining):
+#     global file_size
+#     current = ((file_size - bytes_remaining)/file_size)
+#     percent = ('{0:.1f}').format(current*100)
+#     progress = int(50*current)
+#     status = '█' * progress + '-' * (50 - progress)
+#     sys.stdout.write(' ↳ |{bar}| {percent}%\r'.format(bar=status, percent=percent))
+#     sys.stdout.flush()
 
 
 if __name__ == "__main__":
