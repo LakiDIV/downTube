@@ -1,43 +1,48 @@
 # downTube
 #### Video Demo:  https://www.youtube.com/watch?v=qdU-cHqeHBk
-#### Description: A Command-line program to download bunch of YouTube videos, using pytube library.
-<br/>
+#### Description: This is a command-line application that allows you to download videos from YouTube. It is built using the PyTube library, which is a powerful Python library for interacting with YouTube.
 <hr />
 
-**Features**
+The application reads URLs from a URL.txt file and downloads all the videos listed in the file. The downloaded videos are saved in the user's download folder.
 
-- Download bunch of videos at once
-- Download playlists
-- Variety of link types support
-- Download using video/playlist ID
-- 720p
+In addition to downloading videos from a text file, the application also supports adding URLs to the text file and clearing the text file using command-line arguments. It also allows you to download a specific number of videos directly from the command line, without using the text file.
 
+## Installation
+To install the dependencies for this application, run the following command:
 
-<br/>
-<br/>
+`pip install -r requirements.txt`
 
-**How to download using downTube?**
+## Usage
+To use this application, run the following command:
 
-Add video urls to `url.txt` and run the program or,
+`python downnTube.py`
 
-use `python downtube.py -a A` to add URLs
+This will download all the videos listed in the `URL.txt` file and save them in the user's download folder.
 
-`A` is how many times the program need to ask for a URL
+To add URLs to the text file, use the `-a` argument followed by the number of URLs you want to add:
 
-<br/>
+`python downTube.py -a 3`
 
-use `-c` or `--clear` to clean the text file
+To clear the text file, use the `-c` or `--clear` argument:
 
-<br/>
+`python downTube.py -c`
 
-**How to download videos in the boring way?**
+To download a specific number of videos directly from the command line, use the `-n` argument followed by the number of videos you want to download:
 
-If you want to dowload videos one by one,
+`python downTube.py -n 5`
 
-`python downtube.py -n N`
+## Configuration
 
-`N` is how many times the program need to ask for a URL
+You can configure the application by modifying the following constants in the `downTube.py` file:
 
-<br/>
+- VIDEO_FORMAT: The video format to download (e.g. 'mp4', 'webm').
+- AUDIO_FORMAT: The audio format to download (e.g. 'mp3', 'aac').
+- RESOLUTION: The resolution of the video to download (e.g. '720p', '1080p').
 
-Downloaded files will automatically saved to `Downloads/downTube`
+## Credits
+
+PyTube library: https://github.com/nficano/pytube
+
+## License
+
+This application is licensed under the MIT License. See the LICENSE file for details.
