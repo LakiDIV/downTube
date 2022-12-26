@@ -8,6 +8,7 @@ ECHO Please wait... Gathering package names.
 
 ECHO =========================
 
-pip install pytube pathlib termcolor argparse
+py -m pip install git+https://github.com/pytube/pytube
+pip install pathlib termcolor argparse cfonts
 
 PAUSE

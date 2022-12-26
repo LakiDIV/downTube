@@ -13,6 +13,9 @@ chunk_size = 1024
 # root
 SAVE_PATH = str(Path.home() / "Downloads/downTube")
 URLS_FILE = 'url.txt'
+VIDEO_FORMAT = 'mp4'
+AUDIO_FORMAT = 'mp3'
+RESOLUTION = 'BEST'
 
 # options
 skip_repeated_playlist_videos = False
@@ -196,9 +199,9 @@ def download(link):
             return 3
 
     
-    
-    #Get the first video type - usually the best quality.
-    video = yt.streams.filter(progressive=True, file_extension='mp4').get_highest_resolution()
+    if RESOLUTION == 'BEST':
+        #Get the first video type - usually the best quality.
+        video = yt.streams.filter(progressive=True, file_extension='mp4').get_highest_resolution()
 
     #Gets the title of the video
     title = yt.title
