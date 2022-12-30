@@ -8,6 +8,11 @@ import re
 
 from cfonts import render, say
 
+import tkinter as tk
+import subprocess
+
+# import tkinter.filedialog
+
 chunk_size = 1024
 
 # root
@@ -28,12 +33,85 @@ file_size = 0
 # trackers
 url_count = 0
 
+ # Create the main window
+window = tk.Tk()
+# Prevent the window from being resized
+window.resizable(width=False, height=False)
+
+bg_color = "#282828"
+
+# Create a label and pack it into the window
+logo_image = tk.PhotoImage(file="logo.png")
+label = tk.Label(image=logo_image, bg="#282828")
 
 def main():
+
     welcome = render('downTube', colors=['red', 'yellow'], align='center')
     print(welcome)
+
+    # Change the background color of the window
+    window.config(bg="#282828")
+
+    # Set the window title
+    window.title("downTube")
+
+    # Set the size of the window
+    window.geometry("800x500")
+
+    # Create the button
+    button = tk.Button(window, text="💡", width=4, height=2, command=change_color, fg="black", bg="#ECA869", activeforeground="#FFFFFF", activebackground="#B08BBB")
+
+    # Place the button in the top right corner of the screen
+    button.pack(side="top", anchor="nw")
+    
+    label.pack()
+
+    # Create a button and pack it into the window
+    button1 = tk.Button(text="OPEN", padx=52, pady=5, fg="white", bg="#0072C6", activeforeground="#FFFFFF", activebackground="#0072C6", command=open_text_file)
+    button2 = tk.Button(text="CLEAR", padx=50, pady=5, fg="white", bg="#0072C6", activeforeground="#FFFFFF", activebackground="#0072C6", command=clear_text_file)
+    button3 = tk.Button(text="BULK DOWNLOAD", padx=100, pady=5, fg="white", bg="#0072C6", activeforeground="#FFFFFF", activebackground="#0072C6", command=text_file_download_clicked)
+    button1.pack()
+    button2.pack()
+    button3.pack()
+
+    # Create a separator and pack it into the window
+    separator = tk.Frame(height=2, bd=1, relief=tk.SUNKEN)
+    separator.pack(fill=tk.X, padx=5, pady=5)
+
+    # Create a text box and pack it into the window
+    text_box = tk.Entry(fg="#0072C6", bg="#FFFFFF", font=("Arial", 14), insertbackground="#0072C6", justify=tk.CENTER, state=tk.NORMAL)
+    text_box.pack()
+    button = tk.Button(text="Download", fg="white", bg="#0072C6", font=("Arial", 14), activeforeground="#FFFFFF", activebackground="#0072C6", highlightcolor="#0072C6", highlightthickness=2, highlightbackground="#FFFFFF", relief=tk.SUNKEN, padx=100, pady=5, command=lambda: download_click(text_box.get()))
+    button.pack()
+    # Show the window
+    window.mainloop()
+
     userInputs()
 
+def change_color():
+  global bg_color
+  # Toggle the background color between white and red
+  if bg_color == "#282828":
+    bg_color = "white"
+  else:
+    bg_color = "#282828"
+  # Change the background color of the window
+  window.configure(bg=bg_color)
+  label.configure(bg=bg_color)
+
+def open_text_file():
+  # Open the text file in the default text editor
+  subprocess.run(["notepad.exe", "url.txt"])
+
+def clear_text_file():
+    with open(URLS_FILE, 'w') as txt_file:
+            txt_file.writelines("\n")
+            print(colored(f'{URLS_FILE} CLEANED !', 'green'))
+
+def text_file_download_clicked():
+    # This function will be called when the button is clicked
+    
+    print("Downloading from txt")
     global queued
     queued = convert(URLS_FILE)
 
@@ -44,47 +122,13 @@ def main():
     print()
     sys.exit(input("Press enter to exit..."))
 
-def userInputs():
-    """
-    Handling user inputs and command line arguements
-    """
+def download_click(raw_url):
 
-    # Command Line arguements
-    parser = argparse.ArgumentParser(description="a YouTube video downloader")
-    parser.add_argument("-c", "--clear", help=f"Clear {URLS_FILE}", action='store_true')
-    parser.add_argument("-n", default=0, help="Download videos one by one", type=int)
-    parser.add_argument("-a", default=0, help=f"Add URLs to {URLS_FILE}", type=int)
-    args = parser.parse_args()
-
-    # Clear text file
-    if args.clear:
-        with open(URLS_FILE, 'w') as txt_file:
-            txt_file.writelines("\n")
-            print(colored(f'{URLS_FILE} CLEANED !', 'green'))
-
-    # Download videos one by one
-    for _ in range(args.n):
-        print()
-        # Getting user inputs
-        try: raw_url = input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ")
-        except KeyboardInterrupt:
-            print(colored("Bye!", 'yellow'))
-            sys.exit(input("Press enter to exit..."))
-
-        # Validating user inputs
-        url = validate(raw_url)
-        if len(url) == 11: link = "v=" + url
-        if len(url) == 34: link = "playlist?list=" + url
-        if not url == 1: download(link)
-        raw_url = None
-    
-    # Add URLs to text file
-    with open(URLS_FILE, 'a') as txt_file:
-        for _ in range(args.a):
-            txt_file.writelines(input(colored("Enter the YouTube video URL", attrs=["bold", "underline"]) + ": ") + "\n")
-            print(colored(f'URL added !', 'green'))
-
-    return
+    # This function will be called when the button is clicked
+    print("Downloading from txt")
+    url = validate(raw_url)
+    download(url)
+        
 
 
 def convert(file):
